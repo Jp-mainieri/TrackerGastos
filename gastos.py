@@ -1,13 +1,16 @@
 import mysql.connector
 from datetime import date
+import os
 
 mydb = mysql.connector.connect(
-  host="localhost",
-  user="yourusername",
-  password="yourpassword"
+    host="127.0.0.1",
+    user="root",
+    password="Jppm2006",
+    database="projeto_integrador_fase2"
 )
-mycursor = mydb.cursor()
-gastos = []
+cursor = mydb.cursor()
+
+#gastos = [] #Esse vai ser o banco de dados
 
 def converterValorInteiro(valorStr):
     try:
@@ -83,17 +86,27 @@ def inserirGasto():
     "data": converterData(data),
     "valor": converterValorInteiro(valor)
     }
-    gastos.append(gastoRegistrado)
+
+    sql = "INSERT INTO expenses (expense_type, expense_date, expense_value) VALUES (%s, %s, %s)"
+    val = (gastoRegistrado["tipo"],gastoRegistrado["data"],gastoRegistrado["valor"])
+    cursor.execute(sql, val)
+    mydb.commit()
+    
+    #gastos.append(gastoRegistrado)
 
 def mostrarEstratoCompleto():
+
+    sql = "SELECT * FROM expenses"
+    cursor.execute(sql)
+    gastos = cursor.fetchall() #()
 
     gastosOrganizados = {}
 
     for gastoInfo in gastos:
 
-        mes = gastoInfo["data"].strftime("%B")
-        dia = gastoInfo["data"].strftime("%d")
-        ano = gastoInfo["data"].strftime("%Y")
+        mes = gastoInfo[2].strftime("%B")
+        dia = gastoInfo[2].strftime("%d")
+        ano = gastoInfo[2].strftime("%Y")
 
         if ano not in gastosOrganizados:
             gastosOrganizados[ano] = {}
@@ -117,9 +130,9 @@ def mostrarEstratoCompleto():
                 totalDia = 0
 
                 for gasto in lista_gastos:
-                    valorStr = converterInteiroString(gasto["valor"])
-                    print(f"- {gasto['tipo']}: R$ {valorStr}")
-                    totalDia += gasto["valor"]
+                    valorStr = converterInteiroString(gasto[3])
+                    print(f"- {gasto[1]}: R$ {valorStr}")
+                    totalDia += gasto[3]
                 totalMes += totalDia
                 totalDia = converterInteiroString(totalDia)
                 print(f"\nTotal do dia: R$ {totalDia}")    
@@ -130,6 +143,8 @@ def mostrarEstratoCompleto():
 
         totalAno = converterInteiroString(totalAno)
         print(f"\nTotal de {ano}: R$ {totalAno}")
+
+os.system("cls")
 
 inserirGasto()
 inserirGasto()
