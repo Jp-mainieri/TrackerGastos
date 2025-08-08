@@ -165,15 +165,15 @@ def mostrarEstratoCompleto():
             print(f"\n--- {mes} ---")
             totalMes = 0
 
-            for dia, lista_gastos in dias.items():
+            for dia, listaG in dias.items():
                 print(f"\nDia {dia}:\n")
                 totalDia = 0
 
-                for gasto in lista_gastos:
-                    valorStr = converterInteiroString(gasto[3])
-                    print(f"- {gasto[1]}: R$ {valorStr}")
+                for item in listaG:
+                    valorStr = converterInteiroString(item[3])
+                    print(f"- {item[1]}: R$ {valorStr}")
 
-                    totalDia += registro[3]
+                    totalDia += item[3]
                     totalDiaStr = converterInteiroString(totalDia)
                     print(f"\nTotal do dia: R$ {totalDiaStr}") 
                 totalMes += totalDia
