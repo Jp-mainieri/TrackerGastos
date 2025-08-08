@@ -1,4 +1,7 @@
-gastos = {}
+import mysql.connector
+from datetime import date
+
+gastos = []
 
 def converterValorInteiro(valorStr):
     try:
@@ -31,6 +34,7 @@ def converterValorInteiro(valorStr):
 
     except:
         return None
+
 def converterInteiroString(valorInt):
     valorStr = str(valorInt)
 
@@ -38,10 +42,16 @@ def converterInteiroString(valorInt):
     reaisStr = valorStr[:-2]
     
     valorStr = reaisStr + "." + centavosStr
-    return valorStr
-    
+    return valorStr 
+
+def converterData(dataStr):
+    partes = dataStr.split("/") #partes = [dd,mm,aaaa]
+    data = date(int(partes[2]), int(partes[1]), int(partes[0]))
+    return data
+
 def inserirGasto():
-    id_gasto = len(gastos)
+
+    data = input("Digite a data (dd/mm/aaaa): ")
 
     print("Que tipo de gasto você teve?")
     print("1- Alimentação")
@@ -62,13 +72,59 @@ def inserirGasto():
         tipo = input("Qual é o tipo de gasto?")
 
     valor = input("Digite o valor: R$ ")
-    gastos[id_gasto] = {
+    gastoRegistrado = {
     "tipo": tipo,
-    "date": input("Digite a data (dd/mm/aaaa): "),
+    "data": converterData(data),
     "valor": converterValorInteiro(valor)
     }
-    print(gastos)
-    
+    gastos.append(gastoRegistrado)
+
+def mostrarEstratoCompleto():
+
+    gastosOrganizados = {}
+
+    for gastoInfo in gastos:
+
+        mes = gastoInfo["data"].strftime("%B")
+        dia = gastoInfo["data"].strftime("%d")
+        ano = gastoInfo["data"].strftime("%Y")
+
+        if ano not in gastosOrganizados:
+            gastosOrganizados[ano] = {}
+        if mes not in gastosOrganizados[ano]:
+            gastosOrganizados[ano][mes] = {}
+        if dia not in gastosOrganizados[ano][mes]:
+            gastosOrganizados[ano][mes][dia] = []
+
+        gastosOrganizados[ano][mes][dia].append(gastoInfo)
+
+    for ano, mes in gastosOrganizados.items():
+        print(f"\n=== ANO {ano} ===")
+        totalAno = 0
+
+        for mes, dias in mes.items():
+            print(f"\n--- {mes} ---")
+            totalMes = 0
+
+            for dia, lista_gastos in dias.items():
+                print(f"\nDia {dia}:\n")
+                totalDia = 0
+
+                for gasto in lista_gastos:
+                    valorStr = converterInteiroString(gasto["valor"])
+                    print(f"- {gasto['tipo']}: R$ {valorStr}")
+                    totalDia += gasto["valor"]
+                totalMes += totalDia
+                totalDia = converterInteiroString(totalDia)
+                print(f"\nTotal do dia: R$ {totalDia}")    
+
+            totalAno += totalMes
+            totalMes = converterInteiroString(totalMes)
+            print(f"\nTotal de {mes}: R$ {totalMes}")
+
+        totalAno = converterInteiroString(totalAno)
+        print(f"\nTotal de {ano}: R$ {totalAno}")
+
 inserirGasto()
 inserirGasto()
-inserirGasto()
+mostrarEstratoCompleto()
