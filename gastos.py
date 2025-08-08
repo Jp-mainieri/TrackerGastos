@@ -88,36 +88,76 @@ def inserirGasto():
     }
 
     sql = "INSERT INTO expenses (expense_type, expense_date, expense_value) VALUES (%s, %s, %s)"
-    val = (gastoRegistrado["tipo"],gastoRegistrado["data"],gastoRegistrado["valor"])
+    val = (gastoRegistrado["tipo"],gastoRegistrado["data"],(-1) * gastoRegistrado["valor"])
     cursor.execute(sql, val)
     mydb.commit()
     
     #gastos.append(gastoRegistrado)
 
+def inserirGanho():
+
+    data = input("Digite a data (dd/mm/aaaa): ")
+
+    print("Que tipo de ganho você teve?")
+    print("1- Salário")
+    print("2- Investimento")
+    print("3- Outros")
+
+    tipoEscolhido = input("Digite o número da opção: ")
+
+    while tipoEscolhido not in ["1", "2", "3"]:
+        print("Opção inválida. Por favor, escolha uma opção válida.")
+        tipoEscolhido = input("Digite o número da opção: ")
+
+    if tipoEscolhido == "1":
+        tipo = "Salário"
+    elif tipoEscolhido == "2":
+        tipo = "Investimento"
+    elif tipoEscolhido == "3":
+        tipo = input("Qual é o tipo de gasto?")
+
+    valor = input("Digite o valor: R$ ")
+    ganhoRegistrado = {
+    "tipo": tipo,
+    "data": converterData(data),
+    "valor": converterValorInteiro(valor)
+    }
+
+    sql = "INSERT INTO earnings (earning_type, earning_date, earning_value) VALUES (%s, %s, %s)"
+    val = (ganhoRegistrado["tipo"],ganhoRegistrado["data"],ganhoRegistrado["valor"])
+    cursor.execute(sql, val)
+    mydb.commit()
+
 def mostrarEstratoCompleto():
 
-    sql = "SELECT * FROM expenses"
+    sql = "SELECT * FROM expenses ORDER BY expense_date ASC"
     cursor.execute(sql)
     gastos = cursor.fetchall() #()
 
-    gastosOrganizados = {}
+    sql = "SELECT * FROM earnings ORDER BY earning_date ASC"
+    cursor.execute(sql)
+    ganhos = cursor.fetchall()
 
-    for gastoInfo in gastos:
+    registros = ganhos + gastos
 
-        mes = gastoInfo[2].strftime("%B")
-        dia = gastoInfo[2].strftime("%d")
-        ano = gastoInfo[2].strftime("%Y")
+    extrato = {}
 
-        if ano not in gastosOrganizados:
-            gastosOrganizados[ano] = {}
-        if mes not in gastosOrganizados[ano]:
-            gastosOrganizados[ano][mes] = {}
-        if dia not in gastosOrganizados[ano][mes]:
-            gastosOrganizados[ano][mes][dia] = []
+    for registro in registros:
 
-        gastosOrganizados[ano][mes][dia].append(gastoInfo)
+        mes = registro[2].strftime("%B")
+        dia = registro[2].strftime("%d")
+        ano = registro[2].strftime("%Y")
 
-    for ano, mes in gastosOrganizados.items():
+        if ano not in extrato:
+            extrato[ano] = {}
+        if mes not in extrato[ano]:
+            extrato[ano][mes] = {}
+        if dia not in extrato[ano][mes]:
+            extrato[ano][mes][dia] = []
+
+        extrato[ano][mes][dia].append(registro)
+
+    for ano, mes in extrato.items():
         print(f"\n=== ANO {ano} ===")
         totalAno = 0
 
@@ -132,20 +172,21 @@ def mostrarEstratoCompleto():
                 for gasto in lista_gastos:
                     valorStr = converterInteiroString(gasto[3])
                     print(f"- {gasto[1]}: R$ {valorStr}")
-                    totalDia += gasto[3]
+
+                    totalDia += registro[3]
+                    totalDiaStr = converterInteiroString(totalDia)
+                    print(f"\nTotal do dia: R$ {totalDiaStr}") 
                 totalMes += totalDia
-                totalDia = converterInteiroString(totalDia)
-                print(f"\nTotal do dia: R$ {totalDia}")    
-
+            totalMesStr = converterInteiroString(totalMes)
+            print(f"\nTotal de {mes}: R$ {totalMesStr}")
             totalAno += totalMes
-            totalMes = converterInteiroString(totalMes)
-            print(f"\nTotal de {mes}: R$ {totalMes}")
-
-        totalAno = converterInteiroString(totalAno)
-        print(f"\nTotal de {ano}: R$ {totalAno}")
+        totalAnoStr = converterInteiroString(totalAno)
+        print(f"\nTotal de {ano}: R$ {totalAnoStr}")
+            
+       
 
 os.system("cls")
 
-inserirGasto()
-inserirGasto()
+#inserirGasto()
+#inserirGanho()
 mostrarEstratoCompleto()
