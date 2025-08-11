@@ -10,8 +10,6 @@ mydb = mysql.connector.connect(
 )
 cursor = mydb.cursor()
 
-#gastos = [] #Esse vai ser o banco de dados
-
 def converterValorInteiro(valorStr):
     try:
         if "." in valorStr:
@@ -59,7 +57,8 @@ def converterData(dataStr):
     return data
 
 def inserirGasto():
-
+    print("Insert Expense")
+    print("----------------------------------")
     data = input("Digite a data (dd/mm/aaaa): ")
 
     print("Que tipo de gasto você teve?")
@@ -95,7 +94,8 @@ def inserirGasto():
     #gastos.append(gastoRegistrado)
 
 def inserirGanho():
-
+    print("Insert Earning")
+    print("----------------------------------")
     data = input("Digite a data (dd/mm/aaaa): ")
 
     print("Que tipo de ganho você teve?")
@@ -129,7 +129,8 @@ def inserirGanho():
     mydb.commit()
 
 def mostrarEstratoCompleto():
-
+    print("Receipt")
+    print("----------------------------------")
     sql = "SELECT * FROM expenses ORDER BY expense_date ASC"
     cursor.execute(sql)
     gastos = cursor.fetchall() #()
@@ -138,7 +139,7 @@ def mostrarEstratoCompleto():
     cursor.execute(sql)
     ganhos = cursor.fetchall()
 
-    registros = ganhos + gastos
+    registros = gastos + ganhos
 
     extrato = {}
 
@@ -182,11 +183,86 @@ def mostrarEstratoCompleto():
             totalAno += totalMes
         totalAnoStr = converterInteiroString(totalAno)
         print(f"\nTotal de {ano}: R$ {totalAnoStr}")
-            
-       
 
-os.system("cls")
+def alterarGasto():
+    print("Modify Expenses")
+    print("---------------------------------")
+    print("| Select Option                 |")
+    print("---------------------------------")
+    print("|1- Modify Expenses             |")
+    print("|2- Modify Earnings             |")
+    print("|0- Exit                        |")
+    print("---------------------------------")
+    menuOption = int(input("> "))
+    while menuOption not in [1, 2, 0]:
+        print("Select a valid option!")
+        menuOption = int(input("> "))
 
-#inserirGasto()
-#inserirGanho()
-mostrarEstratoCompleto()
+    if menuOption == 1:
+        data = input("Digite a data (dd/mm/aaaa): ")
+        data = converterData(data)
+        sql = f"SELECT * FROM expenses WHERE expense_date = '{data}' ORDER BY expense_date ASC"
+        cursor.execute(sql)
+        gastos = cursor.fetchall()
+        for item in gastos:
+            valorStr = converterInteiroString(item[3])
+            print(f"- {item[1]}: R$ {valorStr}")
+
+    elif menuOption == 2:
+        data = input("Digite a data (dd/mm/aaaa): ")
+        data = converterData(data)
+        sql = f"SELECT * FROM earnings WHERE earning_date = '{data}' ORDER BY earning_date ASC"
+        cursor.execute(sql)
+        ganhos = cursor.fetchall()
+        for item in ganhos:
+            valorStr = converterInteiroString(item[3])
+            print(f"- {item[1]}: R$ {valorStr}")
+    input()
+
+def excluirGasto():
+    print("Delete Expenses")
+    print("----------------------------------")
+
+
+def clear():
+    os.system("cls")
+
+def showMenu():
+    clear()
+    print("Menu")
+    print("---------------------------------")
+    print("| Select Option                 |")
+    print("---------------------------------")
+    print("|1- Insert Expenses             |")
+    print("|2- Insert Earnings             |")
+    print("|3- Update Expenses             |")
+    print("|4- Delete Expenses             |")
+    print("|5- Show Receipt                |")
+    print("|0- Exit                        |")
+    print("---------------------------------")
+def main():
+    menuOption = 1
+    while menuOption != 0:
+        showMenu()
+        menuOption = int(input("> "))
+        while menuOption not in [1, 2, 3, 4, 5, 0]:
+            print("Select a valid option!")
+            menuOption = int(input("> "))
+
+        clear()
+
+        if menuOption == 1:
+            inserirGasto()
+        elif menuOption == 2:
+            inserirGanho()
+        elif menuOption == 3:
+            alterarGasto()
+        elif menuOption == 5:
+            excluirGasto()
+        elif menuOption == 4:
+            mostrarEstratoCompleto()
+        else:
+            print("Thanks for using the program!")
+
+if __name__ == "__main__":
+    main()
