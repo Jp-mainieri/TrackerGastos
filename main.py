@@ -6,9 +6,12 @@ mydb = mysql.connector.connect(
     host="127.0.0.1",
     user="root",
     password="Jppm2006",
-    database="projeto_integrador_fase2"
+    database="trackergastos-app"
 )
 cursor = mydb.cursor()
+
+def clear():
+    os.system("cls")
 
 def converterValorInteiro(valorStr):
     try:
@@ -27,7 +30,7 @@ def converterValorInteiro(valorStr):
                 centavosStr += "0"
             elif len(centavosStr) > 2:
                 centavosStr = centavosStr[:2]
-            
+
             totalCentavos = reaisStr + centavosStr
 
         else:
@@ -47,9 +50,9 @@ def converterInteiroString(valorInt):
 
     centavosStr = valorStr[-2:]
     reaisStr = valorStr[:-2]
-    
+
     valorStr = reaisStr + "." + centavosStr
-    return valorStr 
+    return valorStr
 
 def converterData(dataStr):
     partes = dataStr.split("/") #partes = [dd,mm,aaaa]
@@ -90,7 +93,7 @@ def inserirGasto():
     val = (gastoRegistrado["tipo"],gastoRegistrado["data"],(-1) * gastoRegistrado["valor"])
     cursor.execute(sql, val)
     mydb.commit()
-    
+
     #gastos.append(gastoRegistrado)
 
 def inserirGanho():
@@ -176,7 +179,7 @@ def mostrarEstratoCompleto():
 
                     totalDia += item[3]
                     totalDiaStr = converterInteiroString(totalDia)
-                    print(f"\nTotal do dia: R$ {totalDiaStr}") 
+                    print(f"\nTotal do dia: R$ {totalDiaStr}")
                 totalMes += totalDia
             totalMesStr = converterInteiroString(totalMes)
             print(f"\nTotal de {mes}: R$ {totalMesStr}")
@@ -184,48 +187,50 @@ def mostrarEstratoCompleto():
         totalAnoStr = converterInteiroString(totalAno)
         print(f"\nTotal de {ano}: R$ {totalAnoStr}")
 
+def listarPorData(tabela,coluna):
+    data = input("Digite a data (dd/mm/aaaa): ")
+    data = converterData(data)
+    sql = f"SELECT * FROM {tabela} WHERE {coluna} = '{data}'"
+    cursor.execute(sql)
+    pesquisa = cursor.fetchall()
+    i = 1
+    if len(pesquisa) == 0:
+        print("No records found for this date.")
+        return pesquisa
+    for item in pesquisa:
+        valorStr = converterInteiroString(item[3])
+        print(f"{i}- {item[1]}: R$ {valorStr}")
+        i+=1
+    return pesquisa
+
 def alterarGasto():
-    print("Modify Expenses")
+    print("Update Records")
     print("---------------------------------")
     print("| Select Option                 |")
     print("---------------------------------")
     print("|1- Modify Expenses             |")
-    print("|2- Modify Earnings             |")
+    print("|2- Delete Expenses             |")
+    print("---------------------------------")
+    print("|3- Modify Earnings             |")
+    print("|4- Delete Earnings             |")
+    print("---------------------------------")
     print("|0- Exit                        |")
     print("---------------------------------")
     menuOption = int(input("> "))
-    while menuOption not in [1, 2, 0]:
+    while menuOption not in [1, 2, 3, 4, 0]:
         print("Select a valid option!")
         menuOption = int(input("> "))
 
     if menuOption == 1:
-        data = input("Digite a data (dd/mm/aaaa): ")
-        data = converterData(data)
-        sql = f"SELECT * FROM expenses WHERE expense_date = '{data}' ORDER BY expense_date ASC"
-        cursor.execute(sql)
-        gastos = cursor.fetchall()
-        for item in gastos:
-            valorStr = converterInteiroString(item[3])
-            print(f"- {item[1]}: R$ {valorStr}")
-
+        listarPorData("expenses", "expense_date")
     elif menuOption == 2:
-        data = input("Digite a data (dd/mm/aaaa): ")
-        data = converterData(data)
-        sql = f"SELECT * FROM earnings WHERE earning_date = '{data}' ORDER BY earning_date ASC"
-        cursor.execute(sql)
-        ganhos = cursor.fetchall()
-        for item in ganhos:
-            valorStr = converterInteiroString(item[3])
-            print(f"- {item[1]}: R$ {valorStr}")
+        listarPorData("expenses", "expense_value")
+    elif menuOption == 3:
+        listarPorData("earnings", "earning_date")
+    elif menuOption == 4:
+        listarPorData("earnings", "earning_value")
     input()
 
-def excluirGasto():
-    print("Delete Expenses")
-    print("----------------------------------")
-
-
-def clear():
-    os.system("cls")
 
 def showMenu():
     clear()
@@ -235,11 +240,12 @@ def showMenu():
     print("---------------------------------")
     print("|1- Insert Expenses             |")
     print("|2- Insert Earnings             |")
-    print("|3- Update Expenses             |")
-    print("|4- Delete Expenses             |")
-    print("|5- Show Receipt                |")
+    print("|3- Update Records              |")
+    print("|4- Show Receipt                |")
+    print("---------------------------------")
     print("|0- Exit                        |")
     print("---------------------------------")
+
 def main():
     menuOption = 1
     while menuOption != 0:
@@ -257,8 +263,6 @@ def main():
             inserirGanho()
         elif menuOption == 3:
             alterarGasto()
-        elif menuOption == 5:
-            excluirGasto()
         elif menuOption == 4:
             mostrarEstratoCompleto()
         else:
