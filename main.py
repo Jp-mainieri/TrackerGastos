@@ -186,22 +186,24 @@ def mostrarEstratoCompleto():
             totalAno += totalMes
         totalAnoStr = converterInteiroString(totalAno)
         print(f"\nTotal de {ano}: R$ {totalAnoStr}")
+    input("<ENTER TO EXIT>")
 
 def listarPorData(tabela,coluna):
-    data = input("Digite a data (dd/mm/aaaa): ")
-    data = converterData(data)
-    sql = f"SELECT * FROM {tabela} WHERE {coluna} = '{data}'"
-    cursor.execute(sql)
-    pesquisa = cursor.fetchall()
+    pesquisa = ()
     i = 1
-    if len(pesquisa) == 0:
-        print("No records found for this date.")
-        return pesquisa
+    while len(pesquisa) == 0:
+        data = input("Digite a data (dd/mm/aaaa): ")
+        data = converterData(data)
+        sql = f"SELECT * FROM {tabela} WHERE {coluna} = '{data}'"
+        cursor.execute(sql)
+        pesquisa = cursor.fetchall()
+        if len(pesquisa) == 0:
+            print("No records found for this date.")
     for item in pesquisa:
         valorStr = converterInteiroString(item[3])
         print(f"{i}- {item[1]}: R$ {valorStr}")
         i+=1
-    return pesquisa
+    return pesquisa,data
 
 def alterarGasto():
     print("Update Records")
@@ -222,14 +224,65 @@ def alterarGasto():
         menuOption = int(input("> "))
 
     if menuOption == 1:
-        listarPorData("expenses", "expense_date")
+        lista,data = listarPorData("expenses", "expense_date")
+        print("Escolha o gasto que você deseja alterar:")
+        id = int(input("> "))
+
+        while not 1 <= id <= len(lista):
+            print("Escolha um número válido:")
+            id = int(input("> "))
+
+        item = lista[id-1]
+        print("Insira o valor do gasto atualizado:")
+        valor = -1* converterValorInteiro(input("> "))
+        sql = f"UPDATE expenses SET expense_value = {valor} WHERE id = {item[0]}"
+        cursor.execute(sql)
+        mydb.commit()
+        print("Atualizado com sucesso")
+
     elif menuOption == 2:
-        listarPorData("expenses", "expense_value")
+        lista = listarPorData("expenses", "expense_value")
+        print("Escolha o gasto que você deseja excluir:")
+        id = input("> ")
+        while not 1 <= id <= len(lista):
+            print("Escolha um número válido:")
+            id = int(input("> "))
+
+        item = lista[id-1]
+        sql = f"DELETE FROM expenses WHERE id = {item[0]}"
+        cursor.execute(sql)
+        mydb.commit()
+        print("Excluido com sucesso")
     elif menuOption == 3:
-        listarPorData("earnings", "earning_date")
+        lista = listarPorData("earnings", "earning_date")
+        print("Escolha o ganho que você deseja alterar:")
+        id = input("> ")
+        while not 1 <= id <= len(lista):
+            print("Escolha um número válido:")
+            id = int(input("> "))
+
+        item = lista[id-1]
+        print("Insira o valor do ganho atualizado:")
+        valor = converterValorInteiro(input("> "))
+        sql = f"UPDATE expenses SET expense_value = {valor} WHERE id = {item[0]}"
+        cursor.execute(sql)
+        mydb.commit()
+        print("Atualizado com sucesso")
+
     elif menuOption == 4:
-        listarPorData("earnings", "earning_value")
-    input()
+        lista = listarPorData("earnings", "earning_value")
+        print("Escolha o ganho que você deseja excluir:")
+        id = input("> ")
+        while not 1 <= id <= len(lista):
+            print("Escolha um número válido:")
+            id = int(input("> "))
+
+        item = lista[id-1]
+        sql = f"DELETE FROM earnings WHERE id = {item[0]}"
+        cursor.execute(sql)
+        mydb.commit()
+        print("Excluido com sucesso")
+    input("<ENTER TO EXIT>")
 
 
 def showMenu():
