@@ -188,9 +188,9 @@ def mostrarEstratoCompleto():
               f"---------------------------------")
         totalAnoStr = converterInteiroString(totalAno)
     print(f"\nTotal de {ano}: R$ {totalAnoStr}")
-    input("<ENTER TO EXIT>")
+    input("\n<ENTER TO EXIT>")
 
-def listarPorData(tabela,coluna):
+def listarPorData(tabela,coluna): #Mudar nome para numerar por data
     pesquisa = ()
     i = 1
     while len(pesquisa) == 0:
@@ -206,6 +206,85 @@ def listarPorData(tabela,coluna):
         print(f"{i}- {item[1]}: R$ {valorStr}")
         i+=1
     return pesquisa,data
+
+def listarPorTipo(): #Mudar nome para numerar por tipo
+    pesquisa = ()
+    i = 1
+    tipo = ""
+
+
+    while len(pesquisa) == 0:
+        print("Filter by Type")
+        print("---------------------------------")
+        print("Select the group of the record:")
+        print("1- Expenses")
+        print("2- Earnings")
+        print("---------------------------------")
+        opcaoGrupo = input("> ")
+
+        while opcaoGrupo not in ["1", "2"]:
+            print("Select a valid option!")
+            opcaoGrupo = input("> ")
+
+        if opcaoGrupo == "1":
+            tabela = "expenses"
+            coluna = "expense_type"
+            print("Filter by Type - Expenses")
+            print("---------------------------------")
+            print(f"Select the type of expense:")
+            print("1- Alimentação")
+            print("2- Transporte")
+            print("3- Outros")
+            print("---------------------------------")
+            opcaotipo = input("> ")
+
+            while opcaotipo not in ["1", "2", "3"]:
+                print("Select a valid option!")
+                opcaotipo = input("> ")
+
+            if opcaotipo == "1":
+                tipo = "Alimentação"
+            elif opcaotipo == "2":
+                tipo = "Transporte"
+            elif opcaotipo == "3":
+                tipo = input("Qual é o tipo de gasto?")
+
+        elif opcaoGrupo == "2":
+            tabela = "earnings"
+            coluna = "earning_type"
+            print("Filter by Type - Earnings")
+            print("---------------------------------")
+            print(f"Select the type of earning:")
+            print("1- Salário")
+            print("2- Investimento")
+            print("3- Outros")
+            print("---------------------------------")
+            opcaotipo = input("> ")
+            while opcaotipo not in ["1", "2", "3"]:
+                print("Select a valid option!")
+                opcaotipo = input("> ")
+            if opcaotipo == "1":
+                tipo = "Salário"
+            elif opcaotipo == "2":
+                tipo = "Investimento"
+            elif opcaotipo == "3":
+                tipo = input("Qual é o tipo de ganho?")
+
+        sql = f"SELECT * FROM {tabela} WHERE {coluna} = '{tipo}'"
+        cursor.execute(sql)
+        pesquisa = cursor.fetchall()
+        if len(pesquisa) == 0:
+            print("No records found for this type.")
+    totalpesquisa = 0
+    print(f"\nRecords for {tipo}:\n")
+    for item in pesquisa:
+        valorStr = converterInteiroString(item[3])
+        print(f"{i}- {item[1]}: R$ {valorStr}")
+        totalpesquisa += item[3]
+        i+=1
+    print(f"Total for this type: R$ {converterInteiroString(totalpesquisa)}")
+    input("\n<ENTER TO EXIT>")
+    return pesquisa,tipo
 
 def alterarGasto():
     print("Update Records")
@@ -284,7 +363,53 @@ def alterarGasto():
         cursor.execute(sql)
         mydb.commit()
         print("Excluido com sucesso")
-    input("<ENTER TO EXIT>")
+    input("\n<ENTER TO EXIT>")
+
+def mostrarEstatisticas():
+    print("Statistics")
+    print("---------------------------------")
+    print("| Select Option                 |")
+    print("---------------------------------")
+    print("|1- Filters                     |")
+    print("|2- Analytics (X)               |")
+    print("|3- (X)                         |")
+    print("---------------------------------")
+    print("|0- Exit                        |")
+    print("---------------------------------")
+
+    menuOption = int(input("> "))
+    while menuOption not in [1, 2, 0]:
+        print("Select a valid option!")
+        menuOption = int(input("> "))
+
+    clear()
+
+    if menuOption == 1:
+        print("Filters")
+        print("---------------------------------")
+        print("| Select Option                 |")
+        print("---------------------------------")
+        print("|1- By Date                    |")
+        print("|2- By Type                    |")
+        print("|3- By Value  (X)              |")
+        print("---------------------------------")
+        print("|0- Exit                       |")
+        print("---------------------------------")
+
+        filterOption = int(input("> "))
+        while filterOption not in [1, 2, 3, 0]:
+            print("Select a valid option!")
+            filterOption = int(input("> "))
+
+        if filterOption == 1:
+            listarPorData("expenses", "expense_date")
+            listarPorData("earnings", "earning_date")
+        elif filterOption == 2:
+            listarPorTipo()
+            pass
+        elif filterOption == 3:
+            # Implementar filtro por valor
+            pass
 
 
 def showMenu():
@@ -297,6 +422,7 @@ def showMenu():
     print("|2- Insert Earnings             |")
     print("|3- Update Records              |")
     print("|4- Show Receipt                |")
+    print("|5- Show Statistics             |")
     print("---------------------------------")
     print("|0- Exit                        |")
     print("---------------------------------")
@@ -320,6 +446,8 @@ def main():
             alterarGasto()
         elif menuOption == 4:
             mostrarEstratoCompleto()
+        elif menuOption == 5:
+            mostrarEstatisticas()
         else:
             print("Thanks for using the program!")
 
