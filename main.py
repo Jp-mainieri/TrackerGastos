@@ -179,13 +179,15 @@ def mostrarEstratoCompleto():
 
                     totalDia += item[3]
                     totalDiaStr = converterInteiroString(totalDia)
-                    print(f"\nTotal do dia: R$ {totalDiaStr}")
+                print(f"\nTotal do dia: R$ {totalDiaStr}\n"
+                      f"---------------------------------")
                 totalMes += totalDia
             totalMesStr = converterInteiroString(totalMes)
-            print(f"\nTotal de {mes}: R$ {totalMesStr}")
             totalAno += totalMes
+        print(f"\nTotal de {mes}: R$ {totalMesStr}\n"
+              f"---------------------------------")
         totalAnoStr = converterInteiroString(totalAno)
-        print(f"\nTotal de {ano}: R$ {totalAnoStr}")
+    print(f"\nTotal de {ano}: R$ {totalAnoStr}")
     input("<ENTER TO EXIT>")
 
 def listarPorData(tabela,coluna):
@@ -241,9 +243,9 @@ def alterarGasto():
         print("Atualizado com sucesso")
 
     elif menuOption == 2:
-        lista = listarPorData("expenses", "expense_value")
+        lista,data = listarPorData("expenses", "expense_value")
         print("Escolha o gasto que você deseja excluir:")
-        id = input("> ")
+        id = int(input("> "))
         while not 1 <= id <= len(lista):
             print("Escolha um número válido:")
             id = int(input("> "))
@@ -254,9 +256,9 @@ def alterarGasto():
         mydb.commit()
         print("Excluido com sucesso")
     elif menuOption == 3:
-        lista = listarPorData("earnings", "earning_date")
+        lista,data = listarPorData("earnings", "earning_date")
         print("Escolha o ganho que você deseja alterar:")
-        id = input("> ")
+        id = int(input("> "))
         while not 1 <= id <= len(lista):
             print("Escolha um número válido:")
             id = int(input("> "))
@@ -264,15 +266,15 @@ def alterarGasto():
         item = lista[id-1]
         print("Insira o valor do ganho atualizado:")
         valor = converterValorInteiro(input("> "))
-        sql = f"UPDATE expenses SET expense_value = {valor} WHERE id = {item[0]}"
+        sql = f"UPDATE earnings SET earning_value = {valor} WHERE id = {item[0]}"
         cursor.execute(sql)
         mydb.commit()
         print("Atualizado com sucesso")
 
     elif menuOption == 4:
-        lista = listarPorData("earnings", "earning_value")
+        lista,data = listarPorData("earnings", "earning_date")
         print("Escolha o ganho que você deseja excluir:")
-        id = input("> ")
+        id = int(input("> "))
         while not 1 <= id <= len(lista):
             print("Escolha um número válido:")
             id = int(input("> "))
