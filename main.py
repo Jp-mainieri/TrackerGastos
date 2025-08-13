@@ -322,7 +322,7 @@ def alterarGasto():
         print("Atualizado com sucesso")
 
     elif menuOption == 2:
-        lista,data = listarPorData("expenses", "expense_value")
+        lista,data = listarPorData("expenses", "expense_date")
         print("Escolha o gasto que você deseja excluir:")
         id = int(input("> "))
         while not 1 <= id <= len(lista):
@@ -389,11 +389,11 @@ def mostrarEstatisticas():
         print("---------------------------------")
         print("| Select Option                 |")
         print("---------------------------------")
-        print("|1- By Date                    |")
-        print("|2- By Type                    |")
-        print("|3- By Value  (X)              |")
+        print("|1- By Date                     |")
+        print("|2- By Type                     |")
+        print("|3- By Value  (X)               |")
         print("---------------------------------")
-        print("|0- Exit                       |")
+        print("|0- Exit                        |")
         print("---------------------------------")
 
         filterOption = int(input("> "))
